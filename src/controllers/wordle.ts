@@ -1,12 +1,13 @@
 // import createKeyDate from "../utils/createKeyDate";
-"use strict";
+import { Request, Response, NextFunction } from "express";
+
 const createKeyDate = require("../utils/createKeyDate");
 const db = require("../models");
 const fs = require("fs");
 
-const writeFileAsync = (content) => {
+const writeFileAsync = (content: object) => {
   const data = JSON.stringify(content);
-  fs.writeFile("./data/word.json", data, (err) => {
+  fs.writeFile("./src/data/word.json", data, (err: any) => {
     if (err) {
       console.log(err);
       return;
@@ -14,34 +15,35 @@ const writeFileAsync = (content) => {
   });
 };
 
-const getWordleBank = (req, res) => {
-  let word = "";
-  const data = JSON.parse(fs.readFileSync("./data/words.json", "utf8"));
+const getWordleBank = (req: Request, res: Response) => {
+  const data = JSON.parse(fs.readFileSync("./src/data/words.json", "utf8"));
 
   res.send({ message: data });
 };
 
-const getWordleWord = (req, res) => {
-  const keyDate = createKeyDate("word");
-  const objFile = fs.readFileSync("./data/word.json", "utf8");
+const getWordleWord = (req: Request, res: Response) => {
+  const keyDate: string = createKeyDate("word");
+  let objFile = fs.readFileSync("./src/data/word.json", "utf8");
 
   if (objFile.length === 0) {
-    const content = {};
-    const data = JSON.parse(fs.readFileSync("./data/words.json", "utf8"));
+    let content: { [key: string]: string } = {};
+
+    const data = JSON.parse(fs.readFileSync("./src/data/words.json", "utf8"));
     const getRandWord = data[Math.floor(Math.random() * data.length)];
     content[`${keyDate}`] = getRandWord;
     writeFileAsync(content);
     console.log(content, "new");
   } else if (!(`${keyDate}` in JSON.parse(objFile))) {
-    const content = {};
-    const data = JSON.parse(fs.readFileSync("./data/words.json", "utf8"));
+    let content: { [key: string]: string } = {};
+
+    const data = JSON.parse(fs.readFileSync("./src/data/words.json", "utf8"));
     const getRandWord = data[Math.floor(Math.random() * data.length)];
     content[`${keyDate}`] = getRandWord;
     writeFileAsync(content);
   }
 
   const currentWordJSON = JSON.parse(
-    fs.readFileSync("./data/word.json", "utf8")
+    fs.readFileSync("./src/data/word.json", "utf8")
   );
   const content = currentWordJSON[`${keyDate}`];
 
@@ -49,7 +51,7 @@ const getWordleWord = (req, res) => {
   res.send({ data: content });
 };
 
-module.exports = { getWordleBank, getWordleWord };
+export { getWordleBank, getWordleWord };
 
 // function fileReader(filePath: string, callback: Function) {
 //   fs.readFile(filePath, (err: string, fileData) => {
