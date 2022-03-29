@@ -1,4 +1,6 @@
-const utils = require("../utils");
+// import createKeyDate from "../utils/createKeyDate";
+"use strict";
+const createKeyDate = require("../utils/createKeyDate");
 const db = require("../models");
 const fs = require("fs");
 
@@ -20,7 +22,7 @@ const getWordleBank = (req, res) => {
 };
 
 const getWordleWord = (req, res) => {
-  const keyDate = utils.createKeyDate("word");
+  const keyDate = createKeyDate("word");
   const objFile = fs.readFileSync("./data/word.json", "utf8");
 
   if (objFile.length === 0) {
@@ -38,8 +40,10 @@ const getWordleWord = (req, res) => {
     writeFileAsync(content);
   }
 
-  const currentWordJSON = fs.readFileSync("./data/word.json", "utf8");
-  const content = JSON.parse(currentWordJSON);
+  const currentWordJSON = JSON.parse(
+    fs.readFileSync("./data/word.json", "utf8")
+  );
+  const content = currentWordJSON[`${keyDate}`];
 
   console.log(content, "wordExist");
   res.send({ data: content });
