@@ -2,15 +2,15 @@
 import { Request, Response, NextFunction } from "express";
 
 import createKeyDate from "../utils/createKeyDate";
-import fs from "fs";
+import fs, { write } from "fs";
 import WORDLES from "../data/words.json";
 
 const wordDateKey: string = createKeyDate("word");
 
-const writeFileAsync = async (content: object) => {
+const writeFileAsync = (content: object) => {
   const data = JSON.stringify(content);
   console.log(data);
-  await fs.writeFile("./src/data/word.json", data, (err: any) => {
+  fs.writeFile("./src/data/word.json", data, (err: any) => {
     if (err) {
       console.log(err);
     } else {
@@ -19,7 +19,7 @@ const writeFileAsync = async (content: object) => {
   });
 };
 
-function grabWordleOfDay() {
+async function grabWordleOfDay() {
   let objFile = fs.readFileSync("./src/data/word.json", "utf8");
 
   if (objFile.length === 0) {
@@ -28,7 +28,7 @@ function grabWordleOfDay() {
     const data = JSON.parse(fs.readFileSync("./src/data/words.json", "utf8"));
     const getRandWord = data[Math.floor(Math.random() * data.length)];
     content[`${wordDateKey}`] = getRandWord;
-    writeFileAsync(content);
+    await writeFileAsync(content);
     console.log(content, "new");
   } else if (!(`${wordDateKey}` in JSON.parse(objFile))) {
     let content: { [key: string]: string } = {};
@@ -40,43 +40,25 @@ function grabWordleOfDay() {
   }
 }
 
-const getWordleBank = (req: Request, res: Response) => {
-  const data = JSON.parse(fs.readFileSync("./src/data/words.json", "utf8"));
-
-  res.send({ message: data });
-};
-
-const getWordleWord = async (
-  req: Request,
-  res: Response,
-  next: NextFunction
+const compareUserToWordleWord = async (
+  word: string,
+  userAgent: string | undefined
 ) => {
-  try {
-    await grabWordleOfDay();
-    const currentWordJSON = await JSON.parse(
-      fs.readFileSync("./src/data/word.json", "utf8")
-    );
-    const content = await currentWordJSON[`${wordDateKey}`];
-
-    console.log(content, "wordExist");
-    res.send({ data: content });
-  } catch (e) {
-    console.log(e);
-    res.status(400).end();
-  }
-  next();
-};
-
-const compareUserToWordleWord = (word: string) => {
-  grabWordleOfDay();
+  await grabWordleOfDay();
 
   let wordArr: string[] = [...word];
   console.log(wordArr);
   let colorArr: string[] = [];
-  let currentWordJSON: wordJSONobj = JSON.parse(
-    fs.readFileSync("./src/data/word.json", "utf8")
-  );
+  let currentWordJSON: wordJSONobj = {};
 
+  if (userAgent === "cypress") {
+    currentWordJSON = { [wordDateKey]: "adieu" };
+  } else {
+    currentWordJSON = JSON.parse(
+      fs.readFileSync("./src/data/word.json", "utf8")
+    );
+  }
+  console.log(currentWordJSON);
   let wordOftheDay: string[] = [...currentWordJSON[wordDateKey].toUpperCase()];
   console.log(wordOftheDay, "here");
 
@@ -91,7 +73,7 @@ const compareUserToWordleWord = (word: string) => {
     }
   });
 
-  return colorArr;
+  return Promise.resolve(colorArr);
 };
 
 const checkWordBank = (word: string) => {
@@ -102,18 +84,51 @@ const checkWordBank = (word: string) => {
   return false;
 };
 
+const getWordleBank = (req: Request, res: Response) => {
+  const data = JSON.parse(fs.readFileSync("./src/data/words.json", "utf8"));
+
+  return res.send({ message: data });
+};
+
+const getWordleWord = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    grabWordleOfDay();
+    const currentWordJSON = await JSON.parse(
+      fs.readFileSync("./src/data/word.json", "utf8")
+    );
+    const content = await currentWordJSON[`${wordDateKey}`];
+
+    console.log(content, "wordExist");
+    res.status(200).json({ data: content });
+  } catch (e) {
+    console.log(e);
+    res.redirect("/api/word");
+    next();
+  }
+};
+
 //post
 const createCheckedLetter = async (req: Request, res: Response) => {
   try {
+    const reqHeadersUserAgent = req.headers["user-agent"];
+    console.log(req.headers["user-agent"]);
     const enteredGuess = req.body;
     console.log(enteredGuess, "entered");
-    const isWordExist = await checkWordBank(enteredGuess.guess);
-    if (isWordExist) {
-      const compared = compareUserToWordleWord(enteredGuess.guess);
-      res.send({ message: compared });
-    }
+    const isWordExist = checkWordBank(enteredGuess.guess);
 
-    res.send({ message: false });
+    if (isWordExist) {
+      const compared = await compareUserToWordleWord(
+        enteredGuess.guess,
+        reqHeadersUserAgent
+      );
+      res.send({ message: compared });
+    } else {
+      res.send({ message: [] });
+    }
   } catch (e) {
     console.log(e);
     res.status(400).end();
