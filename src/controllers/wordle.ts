@@ -48,7 +48,13 @@ const compareUserToWordleWord = async (
 
   let wordArr: string[] = [...word];
   console.log(wordArr);
-  let colorArr: string[] = [];
+  let charPosition: charPositionCheckerObj = {
+    green: [],
+    yellow: [],
+    gray: [],
+    positionChecked: [],
+    wordExist: true,
+  };
   let currentWordJSON: wordJSONobj = {};
 
   if (userAgent === "cypress") {
@@ -58,22 +64,25 @@ const compareUserToWordleWord = async (
       fs.readFileSync("./src/data/word.json", "utf8")
     );
   }
-  console.log(currentWordJSON);
+
   let wordOftheDay: string[] = [...currentWordJSON[wordDateKey].toUpperCase()];
   console.log(wordOftheDay, "here");
 
   wordOftheDay.forEach((char, index) => {
     console.log(char, index, wordArr[index]);
-    if (char === word[index]) {
-      colorArr.push("correct");
+    if (char === wordArr[index]) {
+      charPosition.green.push(wordArr[index]);
+      charPosition.positionChecked.push("correct");
     } else if (wordOftheDay.includes(wordArr[index])) {
-      colorArr.push("present");
+      charPosition.yellow.push(wordArr[index]);
+      charPosition.positionChecked.push("present");
     } else {
-      colorArr.push("absent");
+      charPosition.gray.push(wordArr[index]);
+      charPosition.positionChecked.push("absent");
     }
   });
 
-  return Promise.resolve(colorArr);
+  return Promise.resolve(charPosition);
 };
 
 const checkWordBank = (word: string) => {
@@ -119,15 +128,22 @@ const createCheckedLetter = async (req: Request, res: Response) => {
     const enteredGuess = req.body;
     console.log(enteredGuess, "entered");
     const isWordExist = checkWordBank(enteredGuess.guess);
-
+    let charPosition: charPositionCheckerObj = {
+      green: [],
+      yellow: [],
+      gray: [],
+      positionChecked: [],
+      wordExist: false,
+    };
     if (isWordExist) {
-      const compared = await compareUserToWordleWord(
+      charPosition = await compareUserToWordleWord(
         enteredGuess.guess,
         reqHeadersUserAgent
       );
-      res.send({ message: compared });
+      console.log(charPosition);
+      res.send({ message: charPosition });
     } else {
-      res.send({ message: [] });
+      res.send({ message: charPosition });
     }
   } catch (e) {
     console.log(e);
@@ -137,6 +153,14 @@ const createCheckedLetter = async (req: Request, res: Response) => {
 
 interface wordJSONobj {
   [key: string]: string;
+}
+
+interface charPositionCheckerObj {
+  green: string[];
+  yellow: string[];
+  gray: string[];
+  positionChecked: string[];
+  wordExist?: boolean;
 }
 
 export { getWordleBank, getWordleWord, createCheckedLetter };
