@@ -5,7 +5,8 @@
   "scripts": {
     "start": "node dist/src/server.js",
     "dev": "nodemon src/server.ts",
-    "build": "tsc -p ."
+    "build": "tsc -p .",
+    "verce-build": "echo hello"
   },
   "dependencies": {
     "cors": "^2.8.5",
