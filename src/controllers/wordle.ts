@@ -2,8 +2,10 @@
 import { Request, Response, NextFunction } from "express";
 
 import createKeyDate from "../utils/createKeyDate";
+import path from "path";
 import fs, { write } from "fs";
 import WORDLES from "../data/words.json";
+import { json } from "stream/consumers";
 
 const wordDateKey: string = createKeyDate("word");
 /* Mediator / Controller - behavioral design pattern that reduces connections between components of a program by making them communicate indirectly, through a special mediator object
@@ -35,8 +37,9 @@ const getWordleWord = async (
 ) => {
   try {
     grabWordleOfDay();
+    const jsonDirectory = path.join(process.cwd(), 'json');
     const currentWordJSON = await JSON.parse(
-      fs.readFileSync("./src/data/word.json", "utf8")
+      fs.readFileSync(jsonDirectory + "./src/data/word.json", "utf8")
     );
     const content = await currentWordJSON[`${wordDateKey}`];
 
@@ -117,6 +120,7 @@ const compareUserToWordleWord = async (
   userAgent: string | undefined
 ) => {
   await grabWordleOfDay();
+  const jsonDirectory = path.join(process.cwd(), 'json');
 
   let wordArr: string[] = [...word];
   let charPosition: charPositionCheckerObj = {
@@ -132,7 +136,7 @@ const compareUserToWordleWord = async (
     currentWordJSON = { [wordDateKey]: "adieu" };
   } else {
     currentWordJSON = JSON.parse(
-      fs.readFileSync("./src/data/word.json", "utf8")
+      fs.readFileSync(jsonDirectory + "./src/data/word.json", "utf8")
     );
   }
 
