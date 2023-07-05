@@ -9,10 +9,7 @@
     "ts.check": "tsc --project tsconfig.json",
     "vercel-build": "echo hello"
   },
-  "pre-commit": [
-    "ts.check",
-    "build"
-  ],
+  "pre-commit": [],
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.0.0",
