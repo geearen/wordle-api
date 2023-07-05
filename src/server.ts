@@ -17,10 +17,11 @@ app.use(cors());
 
 app.get("/", (req, res) => res.redirect("/home"));
 
-app.get("/home", (req, res) => {
+app.get("/home", function (req, res) {
   const context = {error: null};
   return res.render("home.ejs", context)
-})
+});
+
 app.use("/api", wordleRoute);
 
 app.listen(port, () => console.log(`Server is running on port ${port}`));
