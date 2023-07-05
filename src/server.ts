@@ -15,7 +15,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
-app.get("/", (req, res) =>{
+app.get("/", (req, res) => res.redirect("/home"));
+
+app.get("/home", (req, res) => {
   const context = {error: null};
   return res.render("home.ejs", context)
 })
