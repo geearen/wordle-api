@@ -1,7 +1,3 @@
-// const express = require("express");
-// const cors = require("cors");
-// const routes = require("./routes");
-
 import express, { Application } from "express";
 import cors from "cors";
 import wordleRoute from "./routes/wordle";
@@ -14,7 +10,7 @@ const viewsPath = path.join(__dirname, "./views");
 app.set("views", viewsPath);
 app.set("view engine", "ejs");
 
-app.use(express.static("public"));
+app.use(express.static("src/public"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
