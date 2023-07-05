@@ -1,4 +1,4 @@
-import express, { Application } from "express";
+import express, { Application, Request, Response } from "express";
 import cors from "cors";
 import wordleRoute from "./routes/wordle";
 import path from "path";
@@ -6,7 +6,7 @@ import path from "path";
 const port = process.env.PORT || 4000;
 const app: Application = express();
 
-const viewsPath = path.join(__dirname, "./views");
+const viewsPath = path.join(__dirname, "../src/views");
 app.set("views", viewsPath);
 app.set("view engine", "ejs");
 
@@ -15,11 +15,11 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
-app.use(require("./utils/logger"));
+app.use(require("./utils/logger"))
 
 app.get("/", (req, res) => res.redirect("/home"));
 
-app.get("/home", function (req, res) {
+app.get("/home", function (req:Request, res: Response) {
   const context = {error: null};
   return res.render("home.ejs", context)
 });
