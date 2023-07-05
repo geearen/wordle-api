@@ -39,7 +39,7 @@ const getWordleWord = async (
   try {
     grabWordleOfDay();
     const currentWordJSON = await JSON.parse(
-      fs.readFileSync(jsonDirectory + "/src/data/word.json", "utf8")
+      fs.readFileSync(jsonDirectory + "/tmp/word.json", "utf8")
     );
     const content = await currentWordJSON[`${wordDateKey}`];
 
@@ -85,7 +85,7 @@ const createComparedLetters = async (req: Request, res: Response) => {
 const writeFileAsync = (content: object) => {
   const data = JSON.stringify(content);
   console.log(data);
-  fs.writeFile(jsonDirectory + "/src/data/word.json", data, (err: any) => {
+  fs.writeFile(jsonDirectory + "/tmp/word.json", data, (err: any) => {
     if (err) {
       console.log(err);
     } else {
@@ -95,7 +95,7 @@ const writeFileAsync = (content: object) => {
 };
 
 async function grabWordleOfDay() {
-  let objFile = fs.readFileSync(jsonDirectory +  "/src/data/word.json", "utf8");
+  let objFile = fs.readFileSync(jsonDirectory +  "/tmp/word.json", "utf8");
 
   if (objFile.length === 0) {
     let content: { [key: string]: string } = {};
@@ -135,7 +135,7 @@ const compareUserToWordleWord = async (
     currentWordJSON = { [wordDateKey]: "adieu" };
   } else {
     currentWordJSON = JSON.parse(
-      fs.readFileSync(jsonDirectory + "/src/data/word.json", "utf8")
+      fs.readFileSync(jsonDirectory + "/tmp/word.json", "utf8")
     );
   }
 
