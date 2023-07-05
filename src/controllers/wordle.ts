@@ -8,6 +8,8 @@ import WORDLES from "../data/words.json";
 import { json } from "stream/consumers";
 
 const wordDateKey: string = createKeyDate("word");
+const jsonDirectory = path.join(process.cwd());
+
 /* Mediator / Controller - behavioral design pattern that reduces connections between components of a program by making them communicate indirectly, through a special mediator object
 
 in context of MVC - 
@@ -24,8 +26,7 @@ ex: real-world-analogy
 //HTTP verbs / HTTP request methods
 //get
 const getWordleBank = (req: Request, res: Response) => {
-  const data = JSON.parse(fs.readFileSync("./src/data/words.json", "utf8"));
-
+  const data = JSON.parse(fs.readFileSync(jsonDirectory + "/src/data/words.json", "utf8"));
   return res.send({ message: data });
 };
 
@@ -37,9 +38,8 @@ const getWordleWord = async (
 ) => {
   try {
     grabWordleOfDay();
-    const jsonDirectory = path.join(process.cwd(), 'json');
     const currentWordJSON = await JSON.parse(
-      fs.readFileSync(jsonDirectory + "./src/data/word.json", "utf8")
+      fs.readFileSync(jsonDirectory + "/src/data/word.json", "utf8")
     );
     const content = await currentWordJSON[`${wordDateKey}`];
 
@@ -85,7 +85,7 @@ const createComparedLetters = async (req: Request, res: Response) => {
 const writeFileAsync = (content: object) => {
   const data = JSON.stringify(content);
   console.log(data);
-  fs.writeFile("./src/data/word.json", data, (err: any) => {
+  fs.writeFile(jsonDirectory + "/src/data/word.json", data, (err: any) => {
     if (err) {
       console.log(err);
     } else {
@@ -95,12 +95,12 @@ const writeFileAsync = (content: object) => {
 };
 
 async function grabWordleOfDay() {
-  let objFile = fs.readFileSync("./src/data/word.json", "utf8");
+  let objFile = fs.readFileSync(jsonDirectory +  "/src/data/word.json", "utf8");
 
   if (objFile.length === 0) {
     let content: { [key: string]: string } = {};
 
-    const data = JSON.parse(fs.readFileSync("./src/data/words.json", "utf8"));
+    const data = JSON.parse(fs.readFileSync(jsonDirectory +  "/src/data/words.json", "utf8"));
     const getRandWord = data[Math.floor(Math.random() * data.length)];
     content[`${wordDateKey}`] = getRandWord;
     await writeFileAsync(content);
@@ -108,7 +108,7 @@ async function grabWordleOfDay() {
   } else if (!(`${wordDateKey}` in JSON.parse(objFile))) {
     let content: { [key: string]: string } = {};
 
-    const data = JSON.parse(fs.readFileSync("./src/data/words.json", "utf8"));
+    const data = JSON.parse(fs.readFileSync(jsonDirectory + "/src/data/words.json", "utf8"));
     const getRandWord = data[Math.floor(Math.random() * data.length)];
     content[`${wordDateKey}`] = getRandWord;
     writeFileAsync(content);
@@ -120,7 +120,6 @@ const compareUserToWordleWord = async (
   userAgent: string | undefined
 ) => {
   await grabWordleOfDay();
-  const jsonDirectory = path.join(process.cwd(), 'json');
 
   let wordArr: string[] = [...word];
   let charPosition: charPositionCheckerObj = {
@@ -136,7 +135,7 @@ const compareUserToWordleWord = async (
     currentWordJSON = { [wordDateKey]: "adieu" };
   } else {
     currentWordJSON = JSON.parse(
-      fs.readFileSync(jsonDirectory + "./src/data/word.json", "utf8")
+      fs.readFileSync(jsonDirectory + "/src/data/word.json", "utf8")
     );
   }
 
