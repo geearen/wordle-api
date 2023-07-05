@@ -15,6 +15,8 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cors());
 
+app.use(require("./utils/logger"));
+
 app.get("/", (req, res) => res.redirect("/home"));
 
 app.get("/home", function (req, res) {
