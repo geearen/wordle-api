@@ -41,7 +41,7 @@ const getWordleWord = async (
     const currentWordJSON = await JSON.parse(
       fs.readFileSync(jsonDirectory + "/tmp/word.json", "utf8")
     );
-    const content = await currentWordJSON[`${wordDateKey}`];
+    const content = currentWordJSON[`${wordDateKey}`];
 
     res.status(200).json({ data: content });
   } catch (e) {
