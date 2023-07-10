@@ -9,14 +9,20 @@
     <h3>endpoints:</h3>
     <ul>
       <li>
-        <a href="https://wordle-api-geearen.onrender.com/api/word">/api/word</a>
+        <a href="https://wordle-api-geearen.onrender.com/api/word"
+          >get: /api/word</a
+        >
         - returns a word of the day
       </li>
       <li>
         <a href="https://wordle-api-geearen.onrender.com/api/words">
-          /api/words
+          get: /api/words
         </a>
         - returns the word bank for wordle
+      </li>
+      <li>
+        post: /api/word - compares the sent word from wordle-app to the word of
+        the day, returns a color values that will use for rendering on app
       </li>
     </ul>
   </body>
